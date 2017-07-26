@@ -1,0 +1,6 @@
+echo "# Events" > README.md
+git init
+git add -A
+git commit -m "first commit"
+git remote add origin https://github.com/Alex-Tsvetanov/Events.git
+git push -u origin master
