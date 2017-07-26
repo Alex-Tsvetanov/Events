@@ -9,12 +9,6 @@ const pages = [
 
 const uniqueCategories = Array.from (new Set (pages.map (x => x.category)));
 
-for (let i of uniqueCategories) {
-	$("#buttons").html ($("#buttons").html () + `
-			<a href="#" onclick="visualization('${i}');" class="btn btn-default btn-raised">${i}</a>
-	`);
-}
-
 const urls = {
 	TechEduPP: "https://techedu.bg",
 	SoftwareUniversity: "https://softuni.bg",
@@ -32,76 +26,89 @@ function formatDate (str) {
 	return d.getDate()  + "-" + ["януари", "февруари", "март", "април", "май", "юни", "юли", "август", "септември", "октомври", "ноември", "декември"][(d.getMonth())] + "-" + d.getFullYear() + " " + d.getHours() + ":" + d.getMinutes();
 }
 
-$.when(pages.reduce(function(ajaxes, x) {
-	window.events[x.category] = {};
-	return ajaxes.concat([
-		$.ajax({
-			type: "GET",
-			url: "https://graph.facebook.com/v2.10/" + x.fb + "/events",
-			data: {
-				"access_token": "1818518568468396|7efb3cfa259f9a9ab888f52197491b7c",
-				"since": "now",
-			},
-			success: function(result, status) {
-				let response = result.data;
-				window.events[x.category]["upcoming"] = [];
-				if (response.length != 0)
-					$.when (response.reduce(function(pics, fbevent) {
-							return pics.concat([
-									$.ajax({
-										type: "GET",
-										url: "https://graph.facebook.com/v2.10/" + fbevent.id + "/picture",
-										data: {
-											"access_token": "1818518568468396|7efb3cfa259f9a9ab888f52197491b7c",
-										},
-										success: function(urlPicture, status) {
-											let add_event = fbevent;
-											//console.log (add_event);
-											//console.log (urlPicture);
-											//add_event ["picture"] = urlPicture.data.url;
-											add_event ["organizator"] = x.fb;
-											window.events[x.category]["upcoming"].push(add_event);
-										}
-									})
-							]);
-					}, [])).done(function () { console.log (x.category + " " + window.events[x.category]["upcoming"]); });
-				window.events[x.category]["upcoming"] = window.events[x.category]["upcoming"].reverse();
-			}
-		}),
-		$.ajax({
-			type: "GET",
-			url: "https://graph.facebook.com/v2.10/" + x.fb + "/events",
-			data: {
-				"access_token": "1818518568468396|7efb3cfa259f9a9ab888f52197491b7c",
-				"until": "now",
-			},
-			success: function(result, status) {
-				let response = result.data;
-				window.events[x.category]["past"] = [];
-				if (response.length != 0)
-					$.when (response.reduce(function(pics, fbevent) {
-							return pics.concat([
-									$.ajax({
-										type: "GET",
-										url: "https://graph.facebook.com/v2.10/" + fbevent.id + "/picture",
-										data: {
-											"access_token": "1818518568468396|7efb3cfa259f9a9ab888f52197491b7c",
-										},
-										success: function(urlPicture, status) {
-											let add_event = fbevent;
-											//console.log (add_event);
-											//console.log (urlPicture);
-											//add_event ["picture"] = urlPicture.data.url;
-											add_event ["organizator"] = x.fb;
-											window.events[x.category]["past"].push(add_event);
-										}
-									})
-							]);
-					}, [])).done(function () { console.log (x.category + " " + window.events[x.category]["past"]); });
-			}
-		})
-	]);
-}, [])).done(function () { console.log ("ready"); } );
+$(document).ready (function () {
+	for (let i of uniqueCategories) {
+		$("#buttons").html ($("#buttons").html () + `
+				<a href="#" onclick="visualization('${i}');" class="btn btn-default btn-raised">${i}</a>
+		`);
+	}
+
+	$.when(pages.reduce(function(ajaxes, x) {
+		window.events[x.category] = {};
+		return ajaxes.concat([
+			$.ajax({
+				type: "GET",
+				url: "https://graph.facebook.com/v2.10/" + x.fb + "/events",
+				data: {
+					"access_token": "1818518568468396|7efb3cfa259f9a9ab888f52197491b7c",
+					"since": "now",
+				},
+				success: function(result, status) {
+					let response = result.data;
+					window.events[x.category]["upcoming"] = [];
+					if (response.length != 0)
+						$.when (response.reduce(function(pics, fbevent) {
+								return pics.concat([
+										$.ajax({
+											type: "GET",
+											url: "https://graph.facebook.com/v2.10/" + fbevent.id + "/picture",
+											data: {
+												"access_token": "1818518568468396|7efb3cfa259f9a9ab888f52197491b7c",
+											},
+											success: function(urlPicture, status) {
+												let add_event = fbevent;
+												//console.log (add_event);
+												//console.log (urlPicture);
+												//add_event ["picture"] = urlPicture.data.url;
+												add_event ["organizator"] = x.fb;
+												window.events[x.category]["upcoming"].push(add_event);
+											}
+										})
+								]);
+						}, [])).done(function () { console.log (x.category + " " + window.events[x.category]["upcoming"]); });
+					window.events[x.category]["upcoming"] = window.events[x.category]["upcoming"].reverse();
+				}
+			}),
+			$.ajax({
+				type: "GET",
+				url: "https://graph.facebook.com/v2.10/" + x.fb + "/events",
+				data: {
+					"access_token": "1818518568468396|7efb3cfa259f9a9ab888f52197491b7c",
+					"until": "now",
+				},
+				success: function(result, status) {
+					let response = result.data;
+					window.events[x.category]["past"] = [];
+					if (response.length != 0)
+						$.when (response.reduce(function(pics, fbevent) {
+								return pics.concat([
+										$.ajax({
+											type: "GET",
+											url: "https://graph.facebook.com/v2.10/" + fbevent.id + "/picture",
+											data: {
+												"access_token": "1818518568468396|7efb3cfa259f9a9ab888f52197491b7c",
+											},
+											success: function(urlPicture, status) {
+												let add_event = fbevent;
+												//console.log (add_event);
+												//console.log (urlPicture);
+												//add_event ["picture"] = urlPicture.data.url;
+												add_event ["organizator"] = x.fb;
+												window.events[x.category]["past"].push(add_event);
+											}
+										})
+								]);
+						}, [])).done(function () { console.log (x.category + " " + window.events[x.category]["past"]); });
+				}
+			})
+		]);
+	}, [])).done(function () { 
+	} );
+	$( document ).ajaxStop(function() {
+		$("#spinner").attr ("style", "display: none;");
+		$("#all").attr ("style", "display: block;");
+	});
+});
 
 function visualization(key) {
 	let output = "";
